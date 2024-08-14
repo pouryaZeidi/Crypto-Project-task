@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Itemcontent from './Itemcontent';
+import { AiOutlineArrowUp, AiOutlineArrowDown } from 'react-icons/ai'; 
 
 const HeroSection = () => {
-  const [wallets, setWallets] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [wallets, setWallets] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc'); 
   const rowsPerPage = 5;
 
   useEffect(() => {
@@ -24,34 +26,54 @@ const HeroSection = () => {
     setCurrentPage(page);
   };
 
-  const renderPagination = () => {
-    const pageCount = Math.ceil(wallets.length / rowsPerPage);
-    const pages = [];
-    for (let i = 1; i <= pageCount; i++) {
-      pages.push(
-        <span
-          key={i}
-          className={`page-link cursor-pointer mx-1 ${i === currentPage ? 'text-blue-500' : ''}`}
-          onClick={() => handlePageChange(i)}
-        >
-          {i}
-        </span>
-      );
-    }
-    return pages;
-  };
+
+  const sortedWallets = [...wallets].sort((a, b) => {
+    const netProfitA = a.netProfit || 0;
+    const netProfitB = b.netProfit || 0;
+    return sortDirection === 'desc' 
+      ? netProfitB - netProfitA 
+      : netProfitA - netProfitB; 
+  });
+
+  const pageCount = Math.ceil(sortedWallets.length / rowsPerPage);
 
   return (
-    <div className="p-[10px] rounded-[20px] bg-[rgb(29,30,37)] text-white w-[80%] mx-auto">
-      <div className="flex justify-around mb-5">
-        <h2 className="text-lg font-bold">Net Profit</h2>
-        <h2 className="text-lg font-bold">Wallet Address</h2>
+    <div className="p-4 rounded-lg bg-gray-800 text-white justify-between w-4/5 mx-auto">
+      <div className="flex mb-4 justify-around items-center">
+        <h2 className="text-lg w-[10%] mr-2 font-bold">Net Profit</h2>
+        <button
+          onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+          className="m-3 hover:text-yellow-200  "
+        > Sort by Net Profit
+          {sortDirection === 'asc' ? (
+            <AiOutlineArrowUp  />
+          ) : (
+            <AiOutlineArrowDown />
+          )}
+        </button>
+        <h2 className="text-lg ml-[70px] w-[60%]  font-bold">Wallet Address</h2>
       </div>
-      {wallets.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((item, index) => (
+      {sortedWallets.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((item, index) => (
         <Itemcontent key={index} item={item} />
       ))}
-      <div className="pagination mt-5 flex justify-center">
-        {renderPagination()}
+      <div className="pagination mt-4 flex justify-center items-center">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="px-4 py-2 mx-2 bg-gray-700 text-white rounded-lg disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span className="text-sm mx-2">
+          Page {currentPage} of {pageCount}
+        </span>
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === pageCount}
+          className="px-4 py-2 mx-2 bg-gray-700 text-white rounded-lg disabled:opacity-50"
+        >
+          Next
+        </button>
       </div>
     </div>
   );
