@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Itemcontent from './Itemcontent';
-import { AiOutlineArrowUp, AiOutlineArrowDown } from 'react-icons/ai'; 
 
 const HeroSection = () => {
   const [wallets, setWallets] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc'); 
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const rowsPerPage = 5;
 
   useEffect(() => {
@@ -18,7 +17,7 @@ const HeroSection = () => {
         console.error('Error fetching wallets:', error);
       }
     };
-    
+
     fetchData();
   }, [currentPage]);
 
@@ -26,13 +25,12 @@ const HeroSection = () => {
     setCurrentPage(page);
   };
 
-
   const sortedWallets = [...wallets].sort((a, b) => {
     const netProfitA = a.netProfit || 0;
     const netProfitB = b.netProfit || 0;
-    return sortDirection === 'desc' 
-      ? netProfitB - netProfitA 
-      : netProfitA - netProfitB; 
+    return sortDirection === 'desc'
+      ? netProfitB - netProfitA
+      : netProfitA - netProfitB;
   });
 
   const pageCount = Math.ceil(sortedWallets.length / rowsPerPage);
@@ -43,15 +41,11 @@ const HeroSection = () => {
         <h2 className="text-lg w-[10%] mr-2 font-bold">Net Profit</h2>
         <button
           onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
-          className="m-3 hover:text-yellow-200  "
-        > Sort by Net Profit
-          {sortDirection === 'asc' ? (
-            <AiOutlineArrowUp  />
-          ) : (
-            <AiOutlineArrowDown />
-          )}
+          className="m-3 hover:text-yellow-200"
+        >
+          Sort by Net Profit {sortDirection === 'asc' ? '(Ascending)' : '(Descending)'}
         </button>
-        <h2 className="text-lg ml-[70px] w-[60%]  font-bold">Wallet Address</h2>
+        <h2 className="text-lg ml-[70px] w-[60%] font-bold">Wallet Address</h2>
       </div>
       {sortedWallets.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage).map((item, index) => (
         <Itemcontent key={index} item={item} />
